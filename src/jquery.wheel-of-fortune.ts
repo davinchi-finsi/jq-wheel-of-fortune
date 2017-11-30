@@ -80,8 +80,8 @@
                     textSize:14,
                     numSegments:6,
                     animation: {
-                        duration: 1,
-                        spins: 1
+                        duration: 3,
+                        spins: 6
                     }
                 }
             },
