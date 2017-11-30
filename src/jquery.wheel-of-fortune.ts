@@ -20,6 +20,7 @@
             ON_SPIN_END:"wof:spin-end",
             ON_QUESTION:"wof:question",
             ON_ANSWER:"wof:answer",
+            ON_END:"wof:end",
             QUERY_WHEEL:"[data-wof-wheel]",
             QUERY_SPIN:"[data-wof-spin]",
             QUERY_SCORE:"[data-wof-score]",
@@ -269,7 +270,7 @@
                 this.$dialogQuestion.text(question.content);
             },
             _createAnswers:function(question,answers){
-                let items = `<ul class="${this.options.classes.answers}">`
+                let items = `<ul class="${this.options.classes.answers}">`,
                     answerClass = this.options.classes.answer;
                 for(let answer of answers){
                     items+=
@@ -367,7 +368,7 @@
                 this.runtime.historic = this._createHistoric();
                 let rounds = this.runtime.game.rounds;
                 for(let round of rounds){
-                    this._addResultToHistoric(round.catregoryId,round.success);
+                    this._addResultToHistoric(round.categoryId,round.success);
                 }
             },
             _updatePoints:function(){
@@ -448,13 +449,16 @@
                 if(this.options.lives != -1 && this.runtime.game.lives == 0){
                     this.element.removeClass(this.options.classes.running);
                     this.element.addClass(this.options.classes.fail);
+                    this.element.trigger(this.ON_END,{success:false,game:this.runtime.game});
                 }else if(this.options.rounds !=-1 && this.runtime.game.currentRound == this.options.rounds){
                     //end
                     this.element.removeClass(this.options.classes.running);
                     if(this.runtime.game.score >= this.options.cutOfMarkPoints){
                         this.element.addClass(this.options.classes.success);
+                        this.element.trigger(this.ON_END,{success:true,game:this.runtime.game});
                     }else{
                         this.element.addClass(this.options.classes.fail);
+                        this.element.trigger(this.ON_END,{success:false,game:this.runtime.game});
                     }
                 }else{
                     this._resetSpinWheel();
