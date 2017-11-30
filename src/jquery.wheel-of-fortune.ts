@@ -21,7 +21,7 @@
             QUERY_SCORE:"[data-wof-score]",
             QUERY_OBJECTIVE_BAR:"[data-wof-objective-bar]",
             QUERY_LIVES:"[data-wof-lives]",
-            QUERY_RUNTIME:"[data-wof-runtime]",
+            QUERY_HISTORIC:"[data-wof-historic]",
             QUERY_QUESTIONS_DIALOG:"[data-wof-dialog]",
             QUERY_QUESTIONS_DIALOG_QUESTION:"[data-wof-question]",
             QUERY_QUESTIONS_DIALOG_ANSWERS:"[data-wof-answers]",
@@ -34,27 +34,33 @@
                 lives:-1,//max number of fails. -1 to no limit
                 autoCloseQuestionDialogIn:3000,
                 classes: {//css classes for elements
+                    wof:"wof",
                     answers:"wof__answers",
                     answer:"wof__answers__answer",
                     answerCorrect:"wof--correct",
                     answerIncorrect:"wof--incorrect",
+                    running:"wof--running",
+                    success:"wof--success",
+                    fail:"wof--fail",
                     live:"wof__lives__live",
                     lives:"wof__lives",
-                    lostLive:"wof__lives__live--lost"
+                    lostLive:"wof__lives__live--lost",
+                    historicCategory:"wof__historic__category",
+                    historicCategoryTitle:"wof__historic__category__title",
+                    historicAnswersContainer:"wof__historic__category__answers",
+                    historicItem:"wof__historic__category__answer",
+                    historicItemSuccess:"wof__historic__category__answer--success",
+                    historicItemFail:"wof__historic__category__answer--fail",
+                    question:"wof__question",
                 },
                 catalog:[],
-                lang:{
-                    "es":{
-                        spin:"Girar ruleta",
-                        answer:"Responder",
-                        answerSuccess:"¡Correcto!",
-                        answerFail:"¡Has fallado!"
-                    }
-                },
                 dialog:{
+                    classes:{
+                        "ui-dialog":"wof-dialog"
+                    },
                     draggable:false,
                     resizable:false,
-                    position:{my:"left center",at:"left center"},
+                    position:{my:"center",at:"center"},
                     closeOnEscape:false
                 },
                 wheel:{
@@ -71,6 +77,7 @@
              * @private
              */
             _create: function () {
+                this.element.addClass(this.options.classes.wof);
                 this._getElements();
                 this.$objectivesBar.progressbar();
                 this._initDialog();
@@ -85,9 +92,10 @@
                 this.$score = this.element.find(this.QUERY_SCORE);
                 this.$objectivesBar = this.element.find(this.QUERY_OBJECTIVE_BAR);
                 this.$lives = this.element.find(this.QUERY_LIVES);
-                this.$runtime = this.element.find(this.QUERY_RUNTIME);
+                this.$historic = this.element.find(this.QUERY_HISTORIC);
                 this.$dialog = this.element.find(this.QUERY_QUESTIONS_DIALOG);
                 this.$dialogQuestion = this.$dialog.find(this.QUERY_QUESTIONS_DIALOG_QUESTION);
+                this.$dialogQuestion.addClass(this.options.classes.question);
                 this.$dialogAnswers = this.$dialog.find(this.QUERY_QUESTIONS_DIALOG_ANSWERS);
                 this.$checkAnswer=this.$dialog.find(this.QUERY_CHECK_ANSWER);
                 //create dialog
@@ -95,6 +103,9 @@
             _initDialog:function(){
                 let dialogOptions = $.extend(true,{},this.options.dialog);
                 dialogOptions.autoOpen = false;
+                if(dialogOptions.position && dialogOptions.position.of == undefined){
+                    dialogOptions.position.of=this.element;
+                }
                 this.$dialog.dialog(dialogOptions);
             },
             _disableDialog:function(){
@@ -104,11 +115,30 @@
                 this.$dialog.dialog("enable");
             },
             _createWheel:function(){
-                this.$wheel.empty();
-                this.$wheelCanvas = $("<canvas>");
-                this.$wheel.append(this.$wheelCanvas);
-                this.$wheelCanvas.uniqueId();
                 this.$wheel.uniqueId();
+            },
+            _updateCanvasDimensions:function(){
+                this.$wheel.get(0).height =  parseFloat(this.$wheel.css("height"));
+                this.$wheel.get(0).width = parseFloat(this.$wheel.css("width"));
+                this.winWheelInstance.draw();
+            },
+            _createHistoric:function(){
+                let historic = {};
+                if(this.$historic.length > 0) {
+                    let categories = this.runtime.catalog;
+                    this.$historic.empty();
+                    for (let category of categories) {
+                        let $container = $(`<div class="${this.options.classes.historicCategory}" data-wof-historic-item="${category.id}"><p class="${this.options.classes.historicCategoryTitle}">${category.title}</p></div>`);
+                        let $registryContainer = $(`<div class="${this.options.classes.historicAnswersContainer}"></div>`);
+                        historic[category.id] = {
+                            $container: $container,
+                            $registryContainer: $registryContainer
+                        };
+                        $container.append($registryContainer);
+                        this.$historic.append($container);
+                    }
+                }
+                return historic;
             },
             _createLives:function(){
                 let numLives = this.options.lives;
@@ -118,7 +148,7 @@
                         lives+=`<i class="${this.options.classes.live}"></i>`
                     }
                 }
-                return lives;
+                this.$lives.empty().append(lives);
             },
             _resetWheel:function(){
                 const categories = this.runtime.catalog;
@@ -135,7 +165,7 @@
             },
             _initWheel:function(){
                 let params = $.extend(true,this.options.wheel,{
-                    'canvasId':this.$wheelCanvas.attr("id"),
+                    'canvasId':this.$wheel.attr("id"),
                     'animation' :{
                         'type'     : 'spinToStop',
                         'callbackFinished' : this._onSpinWheelEnd.bind(this),
@@ -143,6 +173,7 @@
                     }
                 });
                 this.winWheelInstance= new Winwheel(params);
+                //this._updateCanvasDimensions();
             },
 
             _assignEvents:function(){
@@ -162,6 +193,10 @@
                 let wheelSection = this.winWheelInstance.getIndicatedSegment();
                 this._chooseCategory(wheelSection.categoryId);
             },
+            _resetSpinWheel:function(){
+                this.winWheelInstance.rotationAngle=0;
+                this.winWheelInstance.draw();
+            },
             _onQuestionDialogClosed:function(e){
                 const instance = e.data.instance;
                 instance._onRoundEnd();
@@ -169,43 +204,49 @@
             },
             _resetQuestionDialog:function() {
                 this.$checkAnswer.prop("disabled",false);
+                this.$dialog.removeClass(this.options.classes.answerCorrect+" "+this.options.classes.answerIncorrect);
             },
             _getSelectedAnswerId:function(){
                 return this.$dialog.find(":checked").attr("value");
             },
             _checkAnswer:function(){
-                this.$checkAnswer.prop("disabled",true);
-                this._disableAnswers(this.runtime.$currentAnswers);
-                //currentAnswer = answer
-                const selectedAnswerId = this._getSelectedAnswerId(),
-                    selectedAnswer = this.runtime.currentQuestion.answers.find((answer)=>answer.id == selectedAnswerId);
-                let runtimeRound = this.runtime.game.rounds[this.runtime.game.rounds.length-1];
-                //update answer in runtime
-                //update points in runtime
-                runtimeRound.answerId = selectedAnswer.id;
-                runtimeRound.success = selectedAnswer.isCorrect;
-                //if success
-                if(selectedAnswer.isCorrect){
-                    //draw success
-                    this.$dialog.addClass(this.options.classes.answerCorrect);
-                    //add points
-                    this.runtime.game.score+=this.options.pointsForSuccess;
-                }else{
-                    //draw fail
-                    this.$dialog.addClass(this.options.classes.answerIncorrect);
-                    //lives --
-                    if(this.runtime.game.lives >0) {
-                        //update lives in runtime
-                        this.runtime.game.lives--;
+                const selectedAnswerId = this._getSelectedAnswerId();
+                if(selectedAnswerId != undefined){
+                    this.$checkAnswer.prop("disabled", true);
+                    this._disableAnswers(this.runtime.$currentAnswers);
+                    //currentAnswer = answer
+                    const selectedAnswerId = this._getSelectedAnswerId();
+                    const selectedAnswer = this.runtime.currentQuestion.answers.find((answer) => answer.id == selectedAnswerId);
+                    let runtimeRound = this.runtime.game.rounds.slice(-1)[0];
+                    //update answer in runtime
+                    //update points in runtime
+                    runtimeRound.answerId = selectedAnswer.id;
+                    runtimeRound.success = selectedAnswer.isCorrect;
+                    //if success
+                    if (selectedAnswer.isCorrect) {
+                        //draw success
+                        this.$dialog.addClass(this.options.classes.answerCorrect);
+                        //add points
+                        this.runtime.game.score += this.options.pointsForSuccess;
+                    } else {
+                        //draw fail
+                        this.$dialog.addClass(this.options.classes.answerIncorrect);
+                        //lives --
+                        if (this.runtime.game.lives > 0) {
+                            //update lives in runtime
+                            this.runtime.game.lives--;
+                        }
+                        //substract points
+                        this.runtime.game.score -= this.options.pointsForFail;
                     }
-                    //substract points
-                    this.runtime.game.score-=this.options.pointsForFail;
+                    setTimeout(() => {
+                        this.$dialog.dialog("close")
+                    }, this.options.autoCloseQuestionDialogIn);
                 }
-                setTimeout(()=>{this.$dialog.dialog("close")},this.options.autoCloseQuestionDialogIn);
             },
 
             _setCategoryToDialog:function(category){
-                this.$dialog.data("uiDialog").uiDialog.attr("data-wof-category",category);
+                this.$dialog.data("uiDialog").uiDialog.attr("data-wof-category",category.id);
             },
             _setTitleToDialog:function(category,question){
                 this.$dialog.dialog("option","title",category.title);
@@ -219,8 +260,8 @@
                 for(let answer of answers){
                     items+=
                     `<li><label class="${answerClass}">
-                        <span>${answer.content}</span>
                         <input type="radio" name="${question.id}" value="${answer.id}">
+                        <span>${answer.content}</span>
                      </label></li>`;
                 }
                 items+=`</ul>`;
@@ -248,9 +289,9 @@
             },
             _removeCategoryFromWheel:function(category){
                 const segments = this.winWheelInstance.segments;
-                const index = segments.find((segment)=>segment.categoryId == category.id);
+                const index = segments.find((segment)=>{segment && segment.categoryId == category.id});
                 if(index != -1){
-                    this.winWheelInstance.delete(index);
+                    this.winWheelInstance.deleteSegment(index);
                     this.winWheelInstance.draw();
                 }
             },
@@ -297,8 +338,22 @@
                     }
                 }
             },
-            _updateRuntime:function(){
-
+            _addResultToHistoric(categoryId,success){
+                if(success != undefined) {
+                    let historic = this.runtime.historic[categoryId];
+                    if(historic) {
+                        historic.$registryContainer.append(`<i class="${this.options.classes.historicItem} ${success
+                            ? this.options.classes.historicItemSuccess
+                            : this.options.classes.historicItemFail}"></i>`)
+                    }
+                }
+            },
+            _redrawHistoric:function(){
+                this.runtime.historic = this._createHistoric();
+                let rounds = this.runtime.game.rounds;
+                for(let round of rounds){
+                    this._addResultToHistoric(round.catregoryId,round.success);
+                }
             },
             _updatePoints:function(){
                 this.$score.html(this.runtime.game.score);
@@ -311,7 +366,9 @@
                 this._updateLives();
                 //update points
                 this._updatePoints();
-                //update history
+                //update historic
+                let currentRound = this.runtime.game.rounds.slice(-1)[0];
+                this._addResultToHistoric(currentRound.categoryId,currentRound.success);
                 this.runtime.$currentAnswers = null;
                 this.runtime.currentCategory = null;
                 this.runtime.currentQuestion = null;
@@ -352,25 +409,31 @@
             _nextRound:function(){
                 //if options.lives != 0 && lives == 0
                 if(this.options.lives != -1 && this.runtime.game.lives == 0){
-                    //_game over
-                }else if(this.options.rounds !=-1 && this.runtime.game.rounds == this.options.rounds){
+                    this.element.removeClass(this.options.classes.running);
+                    this.element.addClass(this.options.classes.fail);
+                }else if(this.options.rounds !=-1 && this.runtime.game.currentRound == this.options.rounds){
                     //end
-                    if(this.runtime.game.score >= this.options.cuttOfMarkPoints){
-                        //win
+                    this.element.removeClass(this.options.classes.running);
+                    if(this.runtime.game.score >= this.options.cutOfMarkPoints){
+                        this.element.addClass(this.options.classes.success);
                     }else{
-                        //game over
+                        this.element.addClass(this.options.classes.fail);
                     }
                 }else{
+                    this._resetSpinWheel();
                     this.spinDisabled = false;
+                    this.$spin.prop("disabled",false);
                 }
             },
             spinWheel:function(){
                 if(this.disabled != true && this.answering != true && this.spinDisabled != true){
                     this.spinDisabled = true;
+                    this.$spin.prop("disabled",true);
                     this.winWheelInstance.startAnimation();
                 }
             },
             newGame:function(){
+                this.element.addClass(this.options.classes.running);
                 let {numOfQuestions,numOfCategories,catalog} = this._getAvailableCatalog();
                 this.runtime = {
                     numOfQuestions:numOfQuestions,
@@ -385,10 +448,10 @@
                 };
                 this.runtime.maxRounds = this._calcMaxRounds(this.runtime);
                 this.runtime.maxScore = this._calcMaxScore(this.runtime);
-                this.$lives.empty().append(this._createLives());
+                this._createLives();
+                this._redrawHistoric();
                 this._resetWheel();
                 this._updateLives();
-                this._updateRuntime();
                 this._updatePoints();
                 this._nextRound();
             },
