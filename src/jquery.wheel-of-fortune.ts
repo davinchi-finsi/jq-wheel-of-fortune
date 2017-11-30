@@ -16,6 +16,10 @@
     $.widget(
         "ui.jqWheelOfFortune", {
             NAMESPACE: "jqWheelOfFortune",
+            ON_SPIN:"wof:spin",
+            ON_SPIN_END:"wof:spin-end",
+            ON_QUESTION:"wof:question",
+            ON_ANSWER:"wof:answer",
             QUERY_WHEEL:"[data-wof-wheel]",
             QUERY_SPIN:"[data-wof-spin]",
             QUERY_SCORE:"[data-wof-score]",
@@ -61,7 +65,15 @@
                     draggable:false,
                     resizable:false,
                     position:{my:"center",at:"center"},
-                    closeOnEscape:false
+                    closeOnEscape:false,
+                    show: {
+                        effect: "blind",
+                        duration: 400
+                    },
+                    hide: {
+                        effect: "blind",
+                        duration: 400
+                    }
                 },
                 wheel:{
                     textSize:14,
@@ -191,6 +203,7 @@
             _onSpinWheelEnd:function(){
                 //chose category
                 let wheelSection = this.winWheelInstance.getIndicatedSegment();
+                this.element.trigger(this.ON_SPIN_END);
                 this._chooseCategory(wheelSection.categoryId);
             },
             _resetSpinWheel:function(){
@@ -239,6 +252,7 @@
                         //substract points
                         this.runtime.game.score -= this.options.pointsForFail;
                     }
+                    this.element.trigger(this.ON_ANSWER,runtimeRound);
                     setTimeout(() => {
                         this.$dialog.dialog("close")
                     }, this.options.autoCloseQuestionDialogIn);
@@ -286,6 +300,7 @@
                 this.runtime.$currentAnswers = $answers;
                 this.$dialogAnswers.empty().append($answers);
                 this.$dialog.dialog("open");
+                this.element.trigger(this.ON_QUESTION,this.runtime.game.rounds.slice(-1)[0]);
             },
             _removeCategoryFromWheel:function(category){
                 const segments = this.winWheelInstance.segments;
@@ -391,19 +406,41 @@
             _calcMaxScore:function(runtime){
                 return runtime.maxRounds * this.options.pointsForSuccess;
             },
-            _getAvailableCatalog:function(){
+            _getAvailableCatalog:function(game){
                 let categories = this.options.catalog,
                     numOfCategories = categories.length,
+                    availableCatalog,
                     numOfQuestions = 0;
-                for (let categoryIndex = 0, categoriesLength = categories.length; categoryIndex < categoriesLength; categoryIndex++) {
-                    let currentCategory = categories[categoryIndex],
-                        questions = currentCategory.questions;
-                    numOfQuestions+=questions.length;
+                if(!game) {
+                    for (let categoryIndex = 0, categoriesLength = categories.length; categoryIndex < categoriesLength; categoryIndex++) {
+                        let currentCategory = categories[categoryIndex],
+                            questions = currentCategory.questions;
+                        numOfQuestions += questions.length;
+                    }
+                    availableCatalog = $.extend(true,[],categories);
+                }else{
+                    let rounds = game.rounds;
+                    availableCatalog = $.extend(true,[],categories);
+                    for (let roundIndex = 0, roundsLength = rounds.length; roundIndex < roundsLength; roundIndex++) {
+                        let currentRound = rounds[roundIndex];
+                        let category = availableCatalog.find((category)=>category.id == currentRound.categoryId);
+                        if(category){
+                            let question = category.questions.find((question)=>question.id == currentRound.questionId);
+                            if(question){
+                                let questionIndex = category.questions.indexOf(question);
+                                category.questions.splice(questionIndex,1);
+                                if(category.questions.length == 0){
+                                    availableCatalog.splice(availableCatalog.indexOf(category),1);
+                                }
+                            }
+                        }
+                    }
                 }
+
                 return{
                     numOfCategories:numOfCategories,
                     numOfQuestions:numOfQuestions,
-                    catalog:$.extend(true,[],categories)//duplicate objects to free manipulation
+                    catalog:availableCatalog
                 };
             },
             _nextRound:function(){
@@ -430,16 +467,17 @@
                     this.spinDisabled = true;
                     this.$spin.prop("disabled",true);
                     this.winWheelInstance.startAnimation();
+                    this.element.trigger(this.ON_SPIN);
                 }
             },
-            newGame:function(){
+            newGame:function(data){
                 this.element.addClass(this.options.classes.running);
-                let {numOfQuestions,numOfCategories,catalog} = this._getAvailableCatalog();
+                let {numOfQuestions,numOfCategories,catalog} = this._getAvailableCatalog(data);
                 this.runtime = {
                     numOfQuestions:numOfQuestions,
                     numOfCategories:numOfCategories,
                     catalog:catalog,
-                    game: {
+                    game: data || {
                         currentRound: 0,
                         lives:this.options.lives,
                         score: 0,
@@ -454,12 +492,6 @@
                 this._updateLives();
                 this._updatePoints();
                 this._nextRound();
-            },
-            generateGameData:function(){
-
-            },
-            loadGameData:function(){
-
             },
             enable:function(){
 
