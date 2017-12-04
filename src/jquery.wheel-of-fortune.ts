@@ -449,16 +449,16 @@
                 if(this.options.lives != -1 && this.runtime.game.lives == 0){
                     this.element.removeClass(this.options.classes.running);
                     this.element.addClass(this.options.classes.fail);
-                    this.element.trigger(this.ON_END,{success:false,game:this.runtime.game});
+                    this.element.trigger(this.ON_END,{success:false,game:this.runtime.game,maxScore:this.runtime.maxScore});
                 }else if(this.options.rounds !=-1 && this.runtime.game.currentRound == this.options.rounds){
                     //end
                     this.element.removeClass(this.options.classes.running);
                     if(this.runtime.game.score >= this.options.cutOfMarkPoints){
                         this.element.addClass(this.options.classes.success);
-                        this.element.trigger(this.ON_END,{success:true,game:this.runtime.game});
+                        this.element.trigger(this.ON_END,{success:true,game:this.runtime.game,maxScore:this.runtime.maxScore});
                     }else{
                         this.element.addClass(this.options.classes.fail);
-                        this.element.trigger(this.ON_END,{success:false,game:this.runtime.game});
+                        this.element.trigger(this.ON_END,{success:false,game:this.runtime.game,maxScore:this.runtime.maxScore});
                     }
                 }else{
                     this._resetSpinWheel();
