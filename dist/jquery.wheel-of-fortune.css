@@ -1,0 +1,244 @@
+.wof {
+  width: 46rem;
+  display: flex;
+  position: relative;
+}
+
+.wof .wof__canvas__container {
+  padding: 1rem;
+  position: relative;
+}
+
+.wof .wof__canvas__container:before {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 1.25rem;
+  left: 50%;
+  margin-left: -1.25rem;
+  width: 0;
+  height: 0;
+  border-left: 1.25rem solid transparent;
+  border-right: 1.25rem solid transparent;
+  border-top: 1.875rem solid #333;
+}
+
+.wof .wof__center {
+  text-align: center;
+}
+
+.wof .ui-progressbar {
+  height: 1rem;
+  border: 1px solid #0871B2;
+}
+
+.wof .ui-progressbar .ui-progressbar-value {
+  background-color: #0094E3;
+  margin: 0;
+  transition: width 400ms ease;
+}
+
+.wof canvas {
+  margin: 1rem;
+}
+
+.wof .wof__score {
+  font-size: 1.25rem;
+}
+
+.wof .wof__historic__category {
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  border: 1px solid #ccc;
+  margin: 4px 0;
+  border-radius: 4px;
+  background-color: #f5f5f5;
+}
+
+.wof .column {
+  flex-grow: 1;
+  padding: 1rem;
+}
+
+.wof .wof__score-title,
+.wof .wof__lives-title,
+.wof .wof__historic-title {
+  font-size: 1.25rem;
+  padding: 0.5rem 0;
+}
+
+.wof .wof__lives {
+  display: flex;
+}
+
+.wof .wof__lives .wof__lives__live:after {
+  content: "\f004";
+  font-family: "FontAwesome";
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0 0.25rem;
+  color: #0871B2;
+}
+
+.wof .wof__lives .wof__lives__live.wof__lives__live--lost:after {
+  content: "\f08a";
+  color: #666;
+}
+
+.wof .wof__historic__category__answers {
+  display: flex;
+  padding: 0 0.25rem;
+}
+
+.wof .wof__historic__category__answers .wof__historic__category__answer.wof__historic__category__answer--success:after {
+  content: "\f005";
+  font-family: "FontAwesome";
+  width: 2rem;
+  height: 2rem;
+  padding-right: 0.25rem;
+}
+
+.wof .wof__historic__category__answers .wof__historic__category__answer.wof__historic__category__answer--fail {
+  display: none;
+}
+
+.wof .wof__result__success,
+.wof .wof__result__fail {
+  display: none;
+}
+
+.wof .wof__result {
+  display: none;
+  position: absolute;
+  left: 14%;
+  top: 25%;
+  background-color: #fff;
+  padding: 1rem;
+  box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  z-index: 2;
+}
+
+.wof .wof__result .wof__result__title {
+  font-size: 1.5rem;
+}
+
+.wof .wof__result .wof__result__title:before {
+  content: "\f091";
+  font-family: "FontAwesome";
+  padding-right: 0.375rem;
+  color: #FBC02D;
+}
+
+.wof .wof__result .wof__result__content {
+  font-size: 1.25rem;
+  padding: 1.875rem;
+}
+
+.wof .wof__result .wof__result__fail .wof__result__title:before {
+  content: "\f00d";
+  color: #666;
+}
+
+.wof.wof--success .wof__result,
+.wof.wof--success .wof__result__success {
+  display: block;
+}
+
+.wof.wof--success:after, .wof.wof--fail:after {
+  content: "";
+  display: block;
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.wof.wof--fail .wof__result,
+.wof.wof--fail .wof__result__fail {
+  display: block;
+}
+
+.ui-dialog.wof-dialog {
+  background-color: #fff;
+  box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  padding: 0;
+}
+
+.ui-dialog.wof-dialog .ui-dialog-title {
+  font-size: 1.25rem;
+}
+
+.ui-dialog.wof-dialog .ui-dialog-titlebar-close {
+  display: none;
+}
+
+.ui-dialog.wof-dialog .wof__question {
+  font-size: 1rem;
+}
+
+.ui-dialog.wof-dialog .wof__answers {
+  padding-top: 0.375rem;
+}
+
+.ui-dialog.wof-dialog .wof__answers__answer {
+  display: block;
+  padding: 0.25rem 0;
+}
+
+.ui-dialog.wof-dialog .wof__question__result {
+  display: none;
+  font-size: 1.5rem;
+}
+
+.ui-dialog.wof-dialog .wof--correct .wof__check-answer {
+  display: none;
+}
+
+.ui-dialog.wof-dialog .wof--correct .wof__question__result.wof__question__result--correct {
+  display: block;
+}
+
+.ui-dialog.wof-dialog .wof__dialog__actions {
+  padding-top: 0.5rem;
+}
+
+.ui-dialog.wof-dialog .wof--incorrect .wof__check-answer {
+  display: none;
+}
+
+.ui-dialog.wof-dialog .wof--incorrect .wof__question__result.wof__question__result--incorrect {
+  display: block;
+}
+
+.wof .wof__button,
+.wof-dialog .wof__button {
+  background-color: #fff;
+  border: 1px solid #009fc7;
+  border-radius: 4px;
+  color: #009fc7;
+  cursor: pointer;
+  font-size: 1.125rem;
+  transition: all 200ms ease;
+  padding: 0.25rem;
+}
+
+.wof .wof__button:not(:disabled):hover,
+.wof-dialog .wof__button:not(:disabled):hover {
+  color: #fff;
+  background-color: #009fc7;
+}
+
+.wof .wof__button:disabled,
+.wof-dialog .wof__button:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.ui-widget-overlay {
+  background-color: rgba(0, 0, 0, 0.4);
+}
