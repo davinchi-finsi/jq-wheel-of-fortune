@@ -1,6 +1,6 @@
 {
   "name": "jq-wheel-of-fortune",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "main": "dist/jquery.wheel-of-fortune.js",
   "jsnext:main": "esm2015/jquery..wheel-of-fortune.js",
