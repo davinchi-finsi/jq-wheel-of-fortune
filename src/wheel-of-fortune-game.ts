@@ -1,4 +1,4 @@
-import * as Winwheel from "./Winwheel";
+import {Winwheel} from "./Winwheel";
 /**
  * @module jqWheelOfFortune
  *//** */
