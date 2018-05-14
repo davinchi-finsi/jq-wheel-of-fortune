@@ -1,10 +1,17 @@
 {
   "name": "jq-wheel-of-fortune",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "",
-  "main": "dist/jq-wheel-of-fortune.js",
+  "main": "dist/jquery.wheel-of-fortune.js",
+  "jsnext:main": "esm2015/jquery..wheel-of-fortune.js",
+  "ts:main": "src/index.ts",
+  "types": "src/index.ts",
+  "typings": "src/index.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "gulp build",
+    "watch": "rimraf dist && rollup -c -w",
+    "doc": "rimraf docs & typedoc --mode modules --ignoreCompilerErrors --readme none --exclude **/{index}.ts --out docs ./src"
   },
   "repository": {
     "type": "git",
@@ -12,34 +19,30 @@
   },
   "author": "Davinchi",
   "dependencies": {
-    "jquery": "^3.2.1",
-    "jquery-ui": "^1.12.1"
+    "jquery": "^3.3.1",
+    "jquery-ui": "^1.12.1",
+    "winwheel": "^1.0.1"
   },
   "devDependencies": {
+    "@types/jquery": "^3.3.1",
+    "@types/jqueryui": "^1.12.2",
+    "@types/node": "^10.0.8",
+    "chalk": "^2.4.1",
     "gulp": "^3.9.1",
-    "gulp-changed": "^3.1.1",
-    "gulp-clean": "^0.3.2",
-    "gulp-cli": "^1.4.0",
-    "gulp-debug": "^3.1.0",
-    "gulp-filter": "^5.0.1",
-    "gulp-header-comment": "^0.2.1",
-    "gulp-if": "^2.0.2",
-    "gulp-minify": "^2.1.0",
-    "gulp-postcss": "^7.0.0",
-    "gulp-pug": "^3.3.0",
+    "gulp-clean-css": "^3.9.4",
+    "gulp-cli": "^2.0.1",
     "gulp-rename": "^1.2.2",
-    "gulp-rev": "^8.1.0",
-    "gulp-sass": "^3.1.0",
-    "gulp-sourcemaps": "^2.6.1",
-    "gulp-sync": "^0.1.4",
-    "gulp-typescript": "^3.2.3",
-    "gulp-uglify": "^3.0.0",
-    "gulp-util": "^3.0.8",
-    "lite-server": "^2.3.0",
-    "merge2": "^1.2.0",
-    "node-sass": "^4.7.2",
-    "pug": "^2.0.0-rc.4",
-    "require-dir": "^0.3.2",
-    "typescript": "^2.6.2"
+    "gulp-sass": "^4.0.1",
+    "lodash.camelcase": "^4.3.0",
+    "rimraf": "^2.6.2",
+    "rollup": "^0.58.2",
+    "rollup-plugin-license": "^0.6.0",
+    "rollup-plugin-typescript": "^0.8.1",
+    "rollup-plugin-uglify": "^3.0.0",
+    "rollup-plugin-uglify-es": "0.0.1",
+    "typedoc": "^0.11.1",
+    "typedoc-plugin-external-module-name": "^1.1.1",
+    "typescript": "^2.8.3",
+    "uglify-js": "^3.3.25"
   }
 }
