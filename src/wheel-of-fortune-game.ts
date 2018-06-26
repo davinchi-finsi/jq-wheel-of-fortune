@@ -202,6 +202,7 @@ export class WheelOfFortuneGame{
                 'yoyo':true
             }
         });
+        //@ts-ignore
         this.winWheelInstance= new Winwheel(params);
         //this._updateCanvasDimensions();
     }
@@ -270,7 +271,7 @@ export class WheelOfFortuneGame{
                 //substract points
                 this.runtime.game.score -= this.options.pointsForFail;
             }
-            this.element.trigger(WheelOfFortuneEvents.onAnswer,runtimeRound);
+            this.element.trigger(WheelOfFortuneEvents.onAnswer,{game:this.runtime.game,round:runtimeRound});
             setTimeout(() => {
                 this.$dialog.dialog("close")
             }, this.options.autoCloseQuestionDialogIn);

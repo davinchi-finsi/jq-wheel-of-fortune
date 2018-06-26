@@ -2,10 +2,10 @@
  * @module jqWheelOfFortune
  *//** */
 import {WheelOfFortuneRuntimeGame} from "./wheel-of-fortune-runtime-game";
+import {WheelOfFortuneRound} from "./wheel-of-fortune-round";
 
 /**
- * Data for end event
- * @example ```javascript
+ * Data for [[WheelOfFortuneEvents.onEnd]]
  */
 export interface WheelOfFortuneOnEndEvent{
     /**
@@ -20,6 +20,20 @@ export interface WheelOfFortuneOnEndEvent{
      * Max score
      */
     maxScore:number;
+}
+
+/**
+ * Data for [[WheelOfFortuneEvents.onAnswer]]
+ */
+export interface WheelOfFortuneOnAnswerEvent{
+    /**
+     * Current status of the game
+     */
+    game:WheelOfFortuneRuntimeGame;
+    /**
+     * Round completed
+     */
+    round:WheelOfFortuneRound;
 }
 /**
  * Available events
@@ -52,11 +66,10 @@ export enum WheelOfFortuneEvents{
     onQuestion = "wof:question",
     /**
      * Triggered when a question is answered
-     * @type {string}
-     * The callback receives the round
+     * @see [[WheelOfFortuneOnAnswerEvent]]
      * @example
      * ```typescript
-     * $("someSelector").on("wof:answer",(e,round)=>{console.log(round});
+     * $("someSelector").on("wof:answer",(e,data)=>{console.log(data});
      * ```
      */
     onAnswer = "wof:answer",
