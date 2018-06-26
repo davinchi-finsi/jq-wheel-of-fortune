@@ -493,6 +493,8 @@ export class WheelOfFortuneGame{
         }
     }
     newGame(data){
+        this.element.removeClass(this.options.classes.fail);
+        this.element.removeClass(this.options.classes.success);
         this.element.addClass(this.options.classes.running);
         let {numOfQuestions,numOfCategories,catalog} = this._getAvailableCatalog(data);
         this.runtime = <any>{
