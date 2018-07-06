@@ -160,7 +160,7 @@ export interface WheelOfFortuneOptions{
      * @default
      * ```json
      *  {
-     *      textSize:14,
+     *      textFontSize:14,
      *      numSegments:6,
      *      animation: {
      *          duration: 3,

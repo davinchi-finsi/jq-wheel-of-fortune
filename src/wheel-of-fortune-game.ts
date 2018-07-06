@@ -103,7 +103,7 @@ export class WheelOfFortuneGame{
                 queryCheckAnswer:"[data-wof-check-answer]"
             },
             wheel:{
-                textSize:14,
+                textFontSize:14,
                 numSegments:6,
                 animation: {
                     duration: 3,
@@ -323,7 +323,7 @@ export class WheelOfFortuneGame{
     }
     _removeCategoryFromWheel(category){
         const segments = this.winWheelInstance.segments;
-        const index = segments.find((segment)=>{segment && segment.categoryId == category.id});
+        const index = segments.find((segment)=>segment && segment.categoryId == category.id);
         if(index != -1){
             this.winWheelInstance.deleteSegment(index);
             this.winWheelInstance.draw();
@@ -524,6 +524,9 @@ export class WheelOfFortuneGame{
 
     }
     refresh(){
+
+    }
+    destroy(){
 
     }
 }
