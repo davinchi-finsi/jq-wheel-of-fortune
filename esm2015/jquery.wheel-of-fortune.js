@@ -1,5 +1,5 @@
 /**
- * @license jq-wheel-of-fortune v1.0.1
+ * @license jq-wheel-of-fortune v1.0.2
  * (c) 2018 Finsi, Inc.
  */
 
@@ -35,11 +35,10 @@ var WheelOfFortuneEvents;
     WheelOfFortuneEvents["onQuestion"] = "wof:question";
     /**
      * Triggered when a question is answered
-     * @type {string}
-     * The callback receives the round
+     * @see [[WheelOfFortuneOnAnswerEvent]]
      * @example
      * ```typescript
-     * $("someSelector").on("wof:answer",(e,round)=>{console.log(round});
+     * $("someSelector").on("wof:answer",(e,data)=>{console.log(data});
      * ```
      */
     WheelOfFortuneEvents["onAnswer"] = "wof:answer";
@@ -1907,7 +1906,7 @@ class WheelOfFortuneGame {
                 queryCheckAnswer: "[data-wof-check-answer]"
             },
             wheel: {
-                textSize: 14,
+                textFontSize: 14,
                 numSegments: 6,
                 animation: {
                     duration: 3,
@@ -2006,6 +2005,7 @@ class WheelOfFortuneGame {
                 'yoyo': true
             }
         });
+        //@ts-ignore
         this.winWheelInstance = new Winwheel(params);
         //this._updateCanvasDimensions();
     }
@@ -2073,7 +2073,7 @@ class WheelOfFortuneGame {
                 //substract points
                 this.runtime.game.score -= this.options.pointsForFail;
             }
-            this.element.trigger(WheelOfFortuneEvents.onAnswer, runtimeRound);
+            this.element.trigger(WheelOfFortuneEvents.onAnswer, { game: this.runtime.game, round: runtimeRound });
             setTimeout(() => {
                 this.$dialog.dialog("close");
             }, this.options.autoCloseQuestionDialogIn);
@@ -2122,7 +2122,7 @@ class WheelOfFortuneGame {
     }
     _removeCategoryFromWheel(category) {
         const segments = this.winWheelInstance.segments;
-        const index = segments.find((segment) => { segment && segment.categoryId == category.id; });
+        const index = segments.find((segment) => segment && segment.categoryId == category.id);
         if (index != -1) {
             this.winWheelInstance.deleteSegment(index);
             this.winWheelInstance.draw();
@@ -2286,6 +2286,8 @@ class WheelOfFortuneGame {
         }
     }
     newGame(data) {
+        this.element.removeClass(this.options.classes.fail);
+        this.element.removeClass(this.options.classes.success);
         this.element.addClass(this.options.classes.running);
         let { numOfQuestions, numOfCategories, catalog } = this._getAvailableCatalog(data);
         this.runtime = {
@@ -2313,6 +2315,8 @@ class WheelOfFortuneGame {
     disable() {
     }
     refresh() {
+    }
+    destroy() {
     }
 }
 

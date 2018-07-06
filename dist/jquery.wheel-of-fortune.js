@@ -1,5 +1,5 @@
 /**
- * @license jq-wheel-of-fortune v1.0.1
+ * @license jq-wheel-of-fortune v1.0.2
  * (c) 2018 Finsi, Inc.
  */
 
@@ -40,11 +40,10 @@
         WheelOfFortuneEvents["onQuestion"] = "wof:question";
         /**
          * Triggered when a question is answered
-         * @type {string}
-         * The callback receives the round
+         * @see [[WheelOfFortuneOnAnswerEvent]]
          * @example
          * ```typescript
-         * $("someSelector").on("wof:answer",(e,round)=>{console.log(round});
+         * $("someSelector").on("wof:answer",(e,data)=>{console.log(data});
          * ```
          */
         WheelOfFortuneEvents["onAnswer"] = "wof:answer";
@@ -1929,7 +1928,7 @@
                     queryCheckAnswer: "[data-wof-check-answer]"
                 },
                 wheel: {
-                    textSize: 14,
+                    textFontSize: 14,
                     numSegments: 6,
                     animation: {
                         duration: 3,
@@ -2030,6 +2029,7 @@
                     'yoyo': true
                 }
             });
+            //@ts-ignore
             this.winWheelInstance = new Winwheel(params);
             //this._updateCanvasDimensions();
         };
@@ -2098,7 +2098,7 @@
                     //substract points
                     this.runtime.game.score -= this.options.pointsForFail;
                 }
-                this.element.trigger(exports.WheelOfFortuneEvents.onAnswer, runtimeRound);
+                this.element.trigger(exports.WheelOfFortuneEvents.onAnswer, { game: this.runtime.game, round: runtimeRound });
                 setTimeout(function () {
                     _this.$dialog.dialog("close");
                 }, this.options.autoCloseQuestionDialogIn);
@@ -2145,7 +2145,7 @@
         };
         WheelOfFortuneGame.prototype._removeCategoryFromWheel = function (category) {
             var segments = this.winWheelInstance.segments;
-            var index = segments.find(function (segment) { segment && segment.categoryId == category.id; });
+            var index = segments.find(function (segment) { return segment && segment.categoryId == category.id; });
             if (index != -1) {
                 this.winWheelInstance.deleteSegment(index);
                 this.winWheelInstance.draw();
@@ -2313,6 +2313,8 @@
             }
         };
         WheelOfFortuneGame.prototype.newGame = function (data) {
+            this.element.removeClass(this.options.classes.fail);
+            this.element.removeClass(this.options.classes.success);
             this.element.addClass(this.options.classes.running);
             var _a = this._getAvailableCatalog(data), numOfQuestions = _a.numOfQuestions, numOfCategories = _a.numOfCategories, catalog = _a.catalog;
             this.runtime = {
@@ -2340,6 +2342,8 @@
         WheelOfFortuneGame.prototype.disable = function () {
         };
         WheelOfFortuneGame.prototype.refresh = function () {
+        };
+        WheelOfFortuneGame.prototype.destroy = function () {
         };
         return WheelOfFortuneGame;
     }());
