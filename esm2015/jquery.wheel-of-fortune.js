@@ -1,5 +1,5 @@
 /**
- * @license jq-wheel-of-fortune v1.0.2
+ * @license jq-wheel-of-fortune v1.0.3
  * (c) 2018 Finsi, Inc.
  */
 
@@ -2122,7 +2122,7 @@ class WheelOfFortuneGame {
     }
     _removeCategoryFromWheel(category) {
         const segments = this.winWheelInstance.segments;
-        const index = segments.find((segment) => segment && segment.categoryId == category.id);
+        const index = segments.findIndex((segment) => segment && segment.categoryId == category.id);
         if (index != -1) {
             this.winWheelInstance.deleteSegment(index);
             this.winWheelInstance.draw();

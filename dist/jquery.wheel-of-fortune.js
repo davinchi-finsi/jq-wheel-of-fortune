@@ -1,5 +1,5 @@
 /**
- * @license jq-wheel-of-fortune v1.0.2
+ * @license jq-wheel-of-fortune v1.0.3
  * (c) 2018 Finsi, Inc.
  */
 
@@ -2145,7 +2145,7 @@
         };
         WheelOfFortuneGame.prototype._removeCategoryFromWheel = function (category) {
             var segments = this.winWheelInstance.segments;
-            var index = segments.find(function (segment) { return segment && segment.categoryId == category.id; });
+            var index = segments.findIndex(function (segment) { return segment && segment.categoryId == category.id; });
             if (index != -1) {
                 this.winWheelInstance.deleteSegment(index);
                 this.winWheelInstance.draw();
